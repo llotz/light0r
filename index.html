@@ -1,0 +1,149 @@
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<style>
+		body {
+			background-color: black;
+			color: white;
+		}
+		#map {
+			display: flex;
+			flex-direction: column;
+		}
+		.map-row {
+			display: flex;
+			flex-direction: row;
+		}
+		.map-value {
+			width: 1.2em;
+			text-align: center;
+		}
+		.map-value:hover {
+			color: red;
+			cursor: pointer;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+</body>
+
+<script>
+	function GenerateMap(xmax, ymax, char) {
+		let map = [];
+		for (let y = 0; y < ymax; y++) {
+			line = [];
+			for (let x = 0; x < xmax; x++) {
+				line.push(char);
+			}
+			map.push(line);
+		}
+		return map;
+	}
+
+	let map = GenerateMap(50, 50, 'X');
+	map[24][24] = 'C';
+
+	const ymax = map.length;
+	let xmax = map[0].length;
+	const lightIntensity = 4;
+	var lightSources = [];
+
+	for (let y = 0; y < ymax; y++) {
+		for (let x = 0; x < xmax; x++) {
+			if (map[x][y] == 'C') lightSources.push([x, y]);
+		}
+	}
+
+	function calculatePixels(map, lightSources) {
+		let lightMap = GenerateMap(map.length, map[0].length, null);
+
+		darkPixels = 0;
+		for (let y = 0; y < ymax; y++) {
+			for (let x = 0; x < xmax; x++) {
+				isPixelDark = true;
+				lightSources.forEach((source) => {
+					let dx = Math.pow(Math.abs(source[0] - x), 2);
+					let dy = Math.pow(Math.abs(source[1] - y), 2);
+					//let distance = dx > dy ? dx : dy;
+					//let distance = Math.ceil(dx + dy);
+					let distance = Math.sqrt(dx + dy);
+					if (lightMap[x][y] == null) lightMap[x][y] = distance;
+					else
+						lightMap[x][y] =
+							lightMap[x][y] < distance ? lightMap[x][y] : distance;
+
+					if (distance < lightIntensity) isPixelDark = false;
+				});
+				if (isPixelDark) darkPixels++;
+			}
+		}
+		return lightMap;
+	}
+
+	function move(char, step) {
+		switch (char) {
+			case 'w':
+				lightSources.forEach((source) => {
+					source[1] = source[1] - step;
+				});
+				break;
+			case 'a':
+				lightSources.forEach((source) => {
+					source[0] = source[0] - step;
+				});
+				break;
+			case 's':
+				lightSources.forEach((source) => {
+					source[1] = source[1] + step;
+				});
+				break;
+			case 'd':
+				lightSources.forEach((source) => {
+					source[0] = source[0] + step;
+				});
+				break;
+		}
+		renderContent();
+	}
+
+	function renderMap(map) {
+		let renderedContent = '';
+		for (let y = 0; y < map.length; y++) {
+			renderedContent += "<div class='map-row'>";
+			for (let x = 0; x < map[y].length; x++) {
+				let value = map[x][y] < 5 ? '*' : '-';
+				renderedContent += "<div class='map-value'>" + value + '</div>';
+			}
+			renderedContent += '</div>';
+		}
+		return renderedContent;
+	}
+	renderContent();
+
+	function renderContent() {
+		document.getElementById('map').innerHTML = renderMap(
+			calculatePixels(map, lightSources)
+		);
+	}
+
+	document.addEventListener('keydown', (e) => {
+		//let key = e.keyCode;
+		let step = 2;
+		switch (e.keyCode) {
+			case 68: //d
+				move('d', step);
+				break;
+			case 83: //s
+				move('s', step);
+				break;
+			case 65: //a
+				move('a', step);
+				break;
+			case 87: //w
+				move('w', step);
+				break;
+		}
+	});
+</script>
