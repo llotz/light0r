@@ -17,6 +17,7 @@
 		.map-value {
 			width: 1.2em;
 			text-align: center;
+			font-size: 0.4em;
 		}
 		.map-value:hover {
 			color: red;
@@ -26,6 +27,7 @@
 </head>
 
 <body>
+	<p>Use WASD to move the peenus!</p>
 	<div id="map"></div>
 </body>
 
@@ -42,8 +44,12 @@
 		return map;
 	}
 
-	let map = GenerateMap(50, 50, 'X');
+	let map = GenerateMap(100, 100, 'X');
 	map[24][24] = 'C';
+	map[24][20] = 'C';
+	map[24][15] = 'C';
+	map[28][28] = 'C';
+	map[20][28] = 'C';
 
 	const ymax = map.length;
 	let xmax = map[0].length;
